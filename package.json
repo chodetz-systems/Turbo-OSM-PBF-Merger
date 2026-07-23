@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "dependencies": {
+    "osm-pbf-parser": "latest",
+    "osm-pbf-writer": "latest",
+    "formidable": "latest"
+  }
+}
