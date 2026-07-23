@@ -1,7 +1,7 @@
 import formidable from "formidable";
 import fs from "fs";
 import { parse } from "osm-pbf-parser";
-import { write } from "osm-pbf-writer";
+import { Pbf } from "osm-pbf";
 
 export const handler = async (event) => {
   if (event.httpMethod !== "POST") {
@@ -43,7 +43,10 @@ export const handler = async (event) => {
         relations: [...(data1.relations || []), ...(data2.relations || [])]
       };
 
-      const outBuffer = write(merged);
+      const pbf = new Pbf();
+      pbf.writeMessage(merged);
+
+      const buffer = Buffer.from(pbf.finish());
 
       resolve({
         statusCode: 200,
@@ -51,7 +54,7 @@ export const handler = async (event) => {
           "Content-Type": "application/octet-stream",
           "Content-Disposition": "attachment; filename=merged.osm.pbf"
         },
-        body: outBuffer.toString("base64"),
+        body: buffer.toString("base64"),
         isBase64Encoded: true
       });
     });
