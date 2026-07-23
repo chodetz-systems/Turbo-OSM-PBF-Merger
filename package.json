@@ -2,7 +2,7 @@
   "type": "module",
   "dependencies": {
     "osm-pbf-parser": "latest",
-    "osm-pbf-writer": "latest",
+    "osm-pbf": "latest",
     "formidable": "latest"
   }
 }
