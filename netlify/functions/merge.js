@@ -1,0 +1,59 @@
+import formidable from "formidable";
+import fs from "fs";
+import { parse } from "osm-pbf-parser";
+import { write } from "osm-pbf-writer";
+
+export const handler = async (event) => {
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: "Method not allowed"
+    };
+  }
+
+  return new Promise((resolve) => {
+    const form = formidable({ multiples: false });
+
+    form.parse(event, async (err, fields, files) => {
+      if (err) {
+        resolve({
+          statusCode: 400,
+          body: "Upload error"
+        });
+        return;
+      }
+
+      const pbf1 = files.pbf1?.filepath;
+      const pbf2 = files.pbf2?.filepath;
+
+      if (!pbf1 || !pbf2) {
+        resolve({
+          statusCode: 400,
+          body: "Both PBF files are required"
+        });
+        return;
+      }
+
+      const data1 = await parse(fs.createReadStream(pbf1));
+      const data2 = await parse(fs.createReadStream(pbf2));
+
+      const merged = {
+        nodes: [...(data1.nodes || []), ...(data2.nodes || [])],
+        ways: [...(data1.ways || []), ...(data2.ways || [])],
+        relations: [...(data1.relations || []), ...(data2.relations || [])]
+      };
+
+      const outBuffer = write(merged);
+
+      resolve({
+        statusCode: 200,
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Disposition": "attachment; filename=merged.osm.pbf"
+        },
+        body: outBuffer.toString("base64"),
+        isBase64Encoded: true
+      });
+    });
+  });
+};
