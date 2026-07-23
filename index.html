@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Turbo OSM PBF Merger</title>
+</head>
+<body>
+  <h1>Turbo OSM PBF Merger</h1>
+
+  <form id="merge-form">
+    <label>
+      PBF file 1:
+      <input type="file" name="pbf1" accept=".pbf" required>
+    </label>
+    <br><br>
+
+    <label>
+      PBF file 2:
+      <input type="file" name="pbf2" accept=".pbf" required>
+    </label>
+    <br><br>
+
+    <button type="submit">Merge</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    const form = document.getElementById('merge-form');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.textContent = 'Merging...';
+
+      const formData = new FormData(form);
+
+      const res = await fetch('/.netlify/functions/merge', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!res.ok) {
+        status.textContent = 'Merge failed';
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'merged.osm.pbf';
+      a.click();
+
+      status.textContent = 'Merge completed!';
+    });
+  </script>
+</body>
+</html>
