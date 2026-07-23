@@ -1,8 +1,10 @@
 {
+  "name": "turbo-osm-pbf-merger",
+  "version": "1.0.0",
+  "main": "server.js",
   "type": "module",
   "dependencies": {
-    "osm-pbf-parser": "latest",
-    "osm-pbf": "latest",
-    "formidable": "latest"
+    "express": "latest",
+    "multer": "latest"
   }
 }
